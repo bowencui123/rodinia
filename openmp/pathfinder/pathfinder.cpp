@@ -82,7 +82,6 @@ void run(int argc, char **argv) {
         temp = src;
         src = dst;
         dst = temp;
-#pragma omp parallel for private(min)
         for (int n = 0; n < cols; n++) {
             min = src[n];
             if (n > 0)
