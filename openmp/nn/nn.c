@@ -3,7 +3,6 @@
 #include <string.h>
 #include <math.h>
 #include <sys/time.h>
-#include <omp.h>
 
 #define MAX_ARGS 10
 #define REC_LENGTH 49   // size of a record in db
@@ -105,16 +104,13 @@ int main(int argc, char *argv[]) {
             }
         }
 
-/* Launch threads to  */
-#pragma omp parallel for shared(z, target_lat, target_long) private(           \
-    i, rec_iter, tmp_lat, tmp_long)
+/* Compute distances sequentially */
         for (i = 0; i < rec_count; i++) {
             rec_iter = sandbox + (i * REC_LENGTH + LATITUDE_POS - 1);
             sscanf(rec_iter, "%f %f", &tmp_lat, &tmp_long);
             z[i] = sqrt(((tmp_lat - target_lat) * (tmp_lat - target_lat)) +
                         ((tmp_long - target_long) * (tmp_long - target_long)));
-        } /* omp end parallel */
-#pragma omp barrier
+        }
 
         for (i = 0; i < rec_count; i++) {
             float max_dist = -1;
