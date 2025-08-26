@@ -1,16 +1,19 @@
-include ../common.mk
+.RECIPEPREFIX = >
+CC = gcc
+CFLAGS = -O3
+LDFLAGS = -lm
 
+SRCS = lud.c lud_omp.c common/common.c
+OBJS = $(SRCS:.c=.o)
 EXE  = lud
-OBJS = lud_omp.o common/common.o
 
-CPPFLAGS += -Icommon
-
-.PHONY: all
 all: $(EXE)
 
 $(EXE): $(OBJS)
-$(EXE): LDLIBS += -lm
+>$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+>$(CC) $(CFLAGS) -Icommon -c $< -o $@
+
 clean:
-	$(RM) $(EXE) $(OBJS)
+>rm -f $(EXE) $(OBJS)
