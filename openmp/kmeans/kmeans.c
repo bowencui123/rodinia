@@ -84,12 +84,16 @@
 #include <math.h>
 #include <sys/types.h>
 #include <fcntl.h>
-#include <omp.h>
+#include <sys/time.h>
 #include "getopt.h"
 
 #include "kmeans.h"
 
-extern double wtime(void);
+static double get_time(void) {
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return tv.tv_sec + tv.tv_usec * 1e-6;
+}
 
 /*---< usage() >------------------------------------------------------------*/
 void usage(char *argv0) {
@@ -138,6 +142,9 @@ int main(int argc, char **argv) {
             break;
         case 'k':
             nclusters = atoi(optarg);
+            break;
+        case 'n':
+            /* thread count placeholder */
             break;
         case '?':
             usage(argv[0]);
@@ -220,7 +227,7 @@ int main(int argc, char **argv) {
 
     memcpy(attributes[0], buf, numObjects * numAttributes * sizeof(float));
 
-    timing = omp_get_wtime();
+    timing = get_time();
     for (i = 0; i < nloops; i++) {
 
         cluster_centres = NULL;
@@ -228,7 +235,7 @@ int main(int argc, char **argv) {
                 attributes, /* [numObjects][numAttributes] */
                 nclusters, threshold, &cluster_centres);
     }
-    timing = omp_get_wtime() - timing;
+    timing = get_time() - timing;
 
 
     printf("number of Clusters %d\n", nclusters);

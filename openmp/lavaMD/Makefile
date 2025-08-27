@@ -1,14 +1,18 @@
-include ../common.mk
+CC = gcc
+CFLAGS = -O3
+LDFLAGS = -lm
 
-EXE  = lavaMD
-OBJS = kernel/kernel_cpu.o util/num/num.o util/timer/timer.o
+SRCS = lavaMD.c kernel/kernel_cpu.c util/num/num.c util/timer/timer.c
+OBJS = $(SRCS:.c=.o)
+EXE = lavaMD
 
-.PHONY: all
 all: $(EXE)
 
 $(EXE): $(OBJS)
-$(EXE): LDLIBS += -lm
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) $(OBJS) output.txt
+	rm -f $(EXE) $(OBJS) output.txt

@@ -11,7 +11,6 @@
 
 #include <avilib.h>
 #include <avimod.h>
-#include <omp.h>
 
 #include "define.c"
 #include "kernel.c"
@@ -758,7 +757,6 @@ int main(int argc, char *argv[]) {
 //====================================================================================================
 
 
-#pragma omp parallel for
         for (i = 0; i < public.allPoints; i++) {
             kernel(public, private[i]);
         }

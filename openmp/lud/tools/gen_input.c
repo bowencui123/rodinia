@@ -67,9 +67,6 @@ int main(int argc, char **argv) {
         U[i] = (FP_NUMBER *)malloc(sizeof(FP_NUMBER) * MatrixDim);
         A[i] = (FP_NUMBER *)malloc(sizeof(FP_NUMBER) * MatrixDim);
     }
-#if 1
-#pragma omp parallel for default(none) private(i, j) shared(L, U, MatrixDim)
-#endif
     for (i = 0; i < MatrixDim; i++) {
         for (j = 0; j < MatrixDim; j++) {
             if (i == j) {
@@ -85,10 +82,6 @@ int main(int argc, char **argv) {
         }
     }
 
-#if 1
-#pragma omp parallel for default(none) private(i, j, k, sum) shared(L, U, A,   \
-                                                                    MatrixDim)
-#endif
     for (i = 0; i < MatrixDim; i++) {
         for (j = 0; j < MatrixDim; j++) {
             sum = 0;
