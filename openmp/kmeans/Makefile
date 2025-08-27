@@ -1,13 +1,20 @@
-include ../common.mk
+.RECIPEPREFIX := >
+CC = gcc
+CFLAGS = -O3
+LDFLAGS = -lm
 
+SRCS = cluster.c getopt.c kmeans.c kmeans_clustering.c
+OBJS = $(SRCS:.c=.o)
 EXE  = kmeans
-OBJS = cluster.o getopt.o kmeans.o kmeans_clustering.o
 
-.PHONY: all
 all: $(EXE)
 
 $(EXE): $(OBJS)
+>$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+>$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) $(OBJS) output.txt
+>rm -f $(EXE) $(OBJS) output.txt
+

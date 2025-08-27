@@ -5,8 +5,6 @@
 #include <string.h>
 #include <math.h>
 #include <sys/time.h>
-#include <omp.h>
-#define OPENMP
 //#define NUM_THREAD 4
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -168,11 +166,6 @@ void runTest(int argc, char **argv) {
     printf("Processing top-left matrix\n");
 
     for (int i = 0; i < max_cols - 2; i++) {
-#ifdef OPENMP
-        omp_set_num_threads(omp_num_threads);
-#pragma omp parallel for shared(input_itemsets)                                \
-    firstprivate(i, max_cols, penalty) private(idx, index)
-#endif
         for (idx = 0; idx <= i; idx++) {
             index = (idx + 1) * max_cols + (i + 1 - idx);
             input_itemsets[index] = maximum(
@@ -184,11 +177,6 @@ void runTest(int argc, char **argv) {
     printf("Processing bottom-right matrix\n");
     // Compute bottom-right matrix
     for (int i = max_cols - 4; i >= 0; i--) {
-#ifdef OPENMP
-        omp_set_num_threads(omp_num_threads);
-#pragma omp parallel for shared(input_itemsets)                                \
-    firstprivate(i, max_cols, penalty) private(idx, index)
-#endif
         for (idx = 0; idx <= i; idx++) {
             index = (max_cols - idx - 2) * max_cols + idx + max_cols - i - 2;
             input_itemsets[index] = maximum(
