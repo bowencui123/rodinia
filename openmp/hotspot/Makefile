@@ -1,10 +1,19 @@
-include ../common.mk
+CXX = g++
+CXXFLAGS = -O3
+LDFLAGS = -lm
 
+SRCS = hotspot.cpp
+OBJS = $(SRCS:.cpp=.o)
 EXE  = hotspot
 
-.PHONY: all
 all: $(EXE)
 
-.PHONY: clean
+$(EXE): $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+%.o: %.cpp
+	$(CXX) $(CXXFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) output.txt
+	rm -f $(EXE) $(OBJS) output.txt
+

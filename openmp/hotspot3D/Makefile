@@ -1,11 +1,20 @@
-include ../common.mk
+CC = gcc
+CFLAGS = -O3
+LDFLAGS = -lm
 
-EXE  = 3D
+SRC = 3D.c
+OBJ = $(SRC:.c=.o)
+EXE = 3D
 
-.PHONY: all
+.RECIPEPREFIX = >
+
 all: $(EXE)
-all: LDLIBS += -lm
 
-.PHONY: clean
+$(EXE): $(OBJ)
+>$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+%.o: %.c
+>$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) output.txt
+>rm -f $(EXE) $(OBJ) output.txt

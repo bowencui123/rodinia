@@ -4,15 +4,7 @@
 #include <iostream>
 #include <fstream>
 
-#ifdef OMP_OFFLOAD
-#pragma omp declare target
-#endif
 #include <cmath>
-#ifdef OMP_OFFLOAD
-#pragma omp end declare target
-#endif
-
-#include <omp.h>
 
 struct float3 {
     float x, y, z;
@@ -55,18 +47,11 @@ template <typename T> T *alloc(int N) { return new T[N]; }
 
 template <typename T> void dealloc(T *array) { delete[] array; }
 
-#ifdef OMP_OFFLOAD
-#pragma omp declare target
-#endif
 template <typename T> void copy(T *dst, T *src, int N) {
-#pragma omp parallel for default(shared) schedule(static)
     for (int i = 0; i < N; i++) {
         dst[i] = src[i];
     }
 }
-#ifdef OMP_OFFLOAD
-#pragma omp end declare target
-#endif
 
 
 void dump(float *variables, int nel, int nelr) {
@@ -99,16 +84,12 @@ void dump(float *variables, int nel, int nelr) {
 }
 
 void initialize_variables(int nelr, float *variables, float *ff_variable) {
-#pragma omp parallel for default(shared) schedule(static)
     for (int i = 0; i < nelr; i++) {
         for (int j = 0; j < NVAR; j++)
             variables[i + j * nelr] = ff_variable[j];
     }
 }
 
-#ifdef OMP_OFFLOAD
-#pragma omp declare target
-#endif
 inline void compute_flux_contribution(float &density, float3 &momentum,
                                       float &density_energy, float &pressure,
                                       float3 &velocity, float3 &fc_momentum_x,
@@ -158,12 +139,10 @@ inline float compute_speed_of_sound(float &density, float &pressure) {
 
 void compute_step_factor(int nelr, float *__restrict variables, float *areas,
                          float *__restrict step_factors) {
-#pragma omp parallel for default(shared) schedule(auto)
     for (int blk = 0; blk < nelr / block_length; ++blk) {
         int b_start = blk * block_length;
         int b_end =
             (blk + 1) * block_length > nelr ? nelr : (blk + 1) * block_length;
-#pragma omp simd
         for (int i = b_start; i < b_end; i++) {
             float density = variables[i + VAR_DENSITY * nelr];
 
@@ -203,13 +182,10 @@ void compute_flux(int nelr, int *elements_surrounding_elements, float *normals,
                   float3 ff_flux_contribution_momentum_z,
                   float3 ff_flux_contribution_density_energy) {
     const float smoothing_coefficient = float(0.2f);
-
-#pragma omp parallel for default(shared) schedule(auto)
     for (int blk = 0; blk < nelr / block_length; ++blk) {
         int b_start = blk * block_length;
         int b_end =
             (blk + 1) * block_length > nelr ? nelr : (blk + 1) * block_length;
-#pragma omp simd
         for (int i = b_start; i < b_end; ++i) {
             float density_i = variables[i + VAR_DENSITY * nelr];
             float3 momentum_i;
@@ -412,12 +388,10 @@ void compute_flux(int nelr, int *elements_surrounding_elements, float *normals,
 
 void time_step(int j, int nelr, float *old_variables, float *variables,
                float *step_factors, float *fluxes) {
-#pragma omp parallel for default(shared) schedule(auto)
     for (int blk = 0; blk < nelr / block_length; ++blk) {
         int b_start = blk * block_length;
         int b_end =
             (blk + 1) * block_length > nelr ? nelr : (blk + 1) * block_length;
-#pragma omp simd
         for (int i = b_start; i < b_end; ++i) {
             float factor = step_factors[i] / float(RK + 1 - j);
 
@@ -439,9 +413,6 @@ void time_step(int j, int nelr, float *old_variables, float *variables,
         }
     }
 }
-#ifdef OMP_OFFLOAD
-#pragma omp end declare target
-#endif
 /*
  * Main function
  */
@@ -453,7 +424,7 @@ int main(int argc, char **argv) {
     }
     const char *data_file_name = argv[1];
 
-    block_length = omp_get_max_threads();
+    block_length = 1;
 
     float ff_variable[NVAR];
     float3 ff_flux_contribution_momentum_x, ff_flux_contribution_momentum_y,
@@ -561,24 +532,6 @@ int main(int argc, char **argv) {
 
     // these need to be computed the first time in order to compute time step
     std::cout << "Starting..." << std::endl;
-#ifdef _OPENMP
-    double start = omp_get_wtime();
-#ifdef OMP_OFFLOAD
-#pragma omp target map(alloc : old_variables[0 : (nelr *NVAR)]) map(           \
-    to : nelr,                                                                 \
-    areas[0 : nelr],                                                           \
-          step_factors[0 : nelr], elements_surrounding_elements                \
-                       [0 : (nelr *NNB)],                                      \
-                        normals[0 : (NDIM *NNB *nelr)],                        \
-                                fluxes[0 : (nelr *NVAR)], ff_variable          \
-                                       [0 : NVAR],                             \
-                                        ff_flux_contribution_momentum_x,       \
-                                        ff_flux_contribution_momentum_y,       \
-                                        ff_flux_contribution_momentum_z,       \
-                                        ff_flux_contribution_density_energy)   \
-                                           map(variables[0 : (nelr *NVAR)])
-#endif
-#endif
     // Begin iterations
     for (int i = 0; i < iterations; i++) {
         copy<float>(old_variables, variables, nelr * NVAR);
@@ -597,10 +550,6 @@ int main(int argc, char **argv) {
         }
     }
 
-#ifdef _OPENMP
-    double end = omp_get_wtime();
-    std::cout << "Compute time: " << (end - start) << std::endl;
-#endif
 
 
     if (getenv("OUTPUT")) {

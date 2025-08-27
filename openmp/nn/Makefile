@@ -1,12 +1,18 @@
-include ../common.mk
+CC=gcc
+CFLAGS=-O3
+LDFLAGS=-lm
 
-EXES = nn
+SRCS=nn.c
+OBJS=$(SRCS:.c=.o)
+EXE=nn
 
-.PHONY: all
-all: $(EXES)
+all: $(EXE)
 
-$(EXES): LDLIBS += -lm
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXES) output.txt
+	rm -f $(EXE) $(OBJS) output.txt

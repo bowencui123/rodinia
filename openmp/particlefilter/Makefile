@@ -1,12 +1,22 @@
-include ../common.mk
+.RECIPEPREFIX := >
+CC = gcc
+CFLAGS = -O3
+LDFLAGS = -lm
 
-EXE  = particle_filter
+SRCS = particle_filter.c
+OBJS = $(SRCS:.c=.o)
+EXE = particle_filter
 
-.PHONY: all
+.PHONY: all clean
+
 all: $(EXE)
 
-$(EXE): LDLIBS += -lm
+$(EXE): $(OBJS)
+>$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+>$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) output.txt
+>rm -f $(EXE) $(OBJS) output.txt
+
