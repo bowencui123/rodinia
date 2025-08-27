@@ -17,7 +17,7 @@
 // scales to reflect how changes in heart rate as observed during exercise or
 // stress contribute to calcineurin pathway activation, which ultimately leads
 // to the expression
-// of numerous genes that remodel the heart’s structure. It can be used to
+// of numerous genes that remodel the heartâ€™s structure. It can be used to
 // identify potential therapeutic targets that may be useful for the treatment
 // of heart failure.
 // Biochemical reactions, ion transport and electrical activity in the cell are
@@ -139,7 +139,6 @@
 #include <math.h>
 #include <string.h>
 
-#include <omp.h>
 
 #include "define.c"
 #include "ecc.c"
@@ -277,7 +276,6 @@ int main(int argc, char *argv[]) {
                    threads);
             return 0;
         }
-        omp_set_num_threads(threads);
     }
 
     time1 = get_time();
@@ -341,7 +339,6 @@ int main(int argc, char *argv[]) {
     //	EXECUTION
     //================================================================================80
 
-    if (mode == 0) {
 
         for (i = 0; i < workload; i++) {
 
@@ -351,19 +348,6 @@ int main(int argc, char *argv[]) {
             // printf("STATUS: %d\n", status);
             // }
         }
-
-    } else {
-
-#pragma omp parallel for private(i, status) shared(y, x, xmax, params, mode)
-        for (i = 0; i < workload; i++) {
-
-            status = solver(y[i], x[i], xmax, params[i], mode);
-
-            // if(status !=0){
-            // printf("STATUS: %d\n", status);
-            // }
-        }
-    }
 
     // // print results
     // int k;

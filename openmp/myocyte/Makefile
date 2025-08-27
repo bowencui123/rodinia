@@ -1,12 +1,19 @@
-include ../common.mk
+CC = gcc
+CFLAGS = -O3
+LDFLAGS = -lm
 
-EXE  = myocyte
+SRCS = myocyte.c
+OBJS = $(SRCS:.c=.o)
+EXE = myocyte
 
-.PHONY: all
 all: $(EXE)
 
-$(EXE): LDLIBS += -lm
+$(EXE): $(OBJS)
+	$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+	$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE)
+	rm -f $(EXE) $(OBJS)
+

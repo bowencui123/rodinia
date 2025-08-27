@@ -80,10 +80,6 @@ void ellipsetrack(avi_t *video, double *xc0, double *yc0, int Nc, int R, int Np,
             }
         }
 
-// Split the work among multiple threads, if OPEN is defined
-#ifdef OPEN
-#pragma omp parallel for num_threads(omp_num_threads) private(i, j)
-#endif
         // Track each cell
         for (cell_num = 0; cell_num < Nc; cell_num++) {
             // Make copies of the current cell's location

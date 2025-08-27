@@ -1,12 +1,18 @@
-include ../common.mk
+.RECIPEPREFIX = >
+CC = gcc
+CFLAGS = -O3
 
+SRCS = gen_input.c
+OBJS = $(SRCS:.c=.o)
 EXE  = gen_input
 
-.PHONY: all
 all: $(EXE)
 
 $(EXE): $(OBJS)
+>$(CC) $(CFLAGS) -o $@ $^
 
-.PHONY: clean
+%.o: %.c
+>$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE)
+>rm -f $(EXE) $(OBJS)

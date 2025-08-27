@@ -22,7 +22,7 @@
 #include <math.h>
 #include <sys/resource.h>
 #include <limits.h>
-#include <omp.h>
+#include <pthread.h>
 
 #ifdef ENABLE_PARSEC_HOOKS
 #include <hooks.h>
@@ -72,7 +72,6 @@ float *block;
 
 static int nproc; //# of threads
 static int c, d;
-static int ompthreads;
 
 // instrumentation code
 #ifdef PROFILE
@@ -451,9 +450,7 @@ double pgain(long x, Points *points, double z, long int *numcenters, int pid,
     // global *lower* fields
     double *gl_lower = &work_mem[nproc * stride];
 
-// OpenMP parallelization
-//	#pragma omp parallel for
-#pragma omp parallel for reduction(+ : cost_of_opening_x)
+// OpenMP parallelization removed
     for (i = k1; i < k2; i++) {
         float x_cost =
             dist(points->p[i], points->p[x], points->dim) * points->p[i].weight;
@@ -541,7 +538,6 @@ double pgain(long x, Points *points, double z, long int *numcenters, int pid,
 
     if (gl_cost_of_opening_x < 0) {
 //  we'd save money by opening x; we'll do it
-#pragma omp parallel for
         for (int i = k1; i < k2; i++) {
             bool close_center = gl_lower[center_table[points->p[i].assign]] > 0;
             if (switch_membership[i] || close_center) {
@@ -1257,9 +1253,7 @@ int main(int argc, char **argv) {
     strcpy(outfilename, argv[8]);
     nproc = atoi(argv[9]);
 
-    ompthreads = nproc;
     nproc = 1;
-    omp_set_num_threads(ompthreads);
 
     srand48(SEED);
     PStream *stream;

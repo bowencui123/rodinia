@@ -1,23 +1,28 @@
-include ../common.mk
-
-EXE  = heartwall
-OBJS = $(AVI_DIR)/avilib.o $(AVI_DIR)/avimod.o
-
-.PHONY: all
-all: $(EXE)
-
-# we call make recursively, so need to export variables
-export
+CC=gcc
+CFLAGS=-O3
+LDFLAGS=-lm
 
 AVI_DIR=../../common/avi
-$(AVI_DIR)/avilib.o $(AVI_DIR)/avimod.o:
-	$(MAKE) -C $(AVI_DIR)
-CPPFLAGS += -I$(AVI_DIR)
+SRCS=heartwall.c
+OBJS=$(SRCS:.c=.o)
+EXE=heartwall
 
-$(EXE): $(OBJS)
-$(EXE): LDLIBS += -lm
+.RECIPEPREFIX =>
 
-.PHONY: clean
+all: $(EXE)
+
+$(EXE): $(OBJS) $(AVI_DIR)/avilib.o $(AVI_DIR)/avimod.o
+>$(CC) $(CFLAGS) -I$(AVI_DIR) -o $@ $(OBJS) $(AVI_DIR)/avilib.o $(AVI_DIR)/avimod.o $(LDFLAGS)
+
+$(AVI_DIR)/avilib.o:
+>$(MAKE) -C $(AVI_DIR) avilib.o
+
+$(AVI_DIR)/avimod.o:
+>$(MAKE) -C $(AVI_DIR) avimod.o
+
+%.o: %.c
+>$(CC) $(CFLAGS) -I$(AVI_DIR) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) $(OBJS) output.txt
-	$(MAKE) -C $(AVI_DIR) clean
+>rm -f $(EXE) $(OBJS)
+>$(MAKE) -C $(AVI_DIR) clean
