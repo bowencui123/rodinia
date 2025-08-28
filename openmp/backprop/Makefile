@@ -1,14 +1,19 @@
-include ../common.mk
+.RECIPEPREFIX = >
+CC      = gcc
+CFLAGS  = -O3
+LDFLAGS = -lm
 
 EXE  = backprop
-OBJS = facetrain.o imagenet.o backprop_kernel.o
+OBJS = backprop.o backprop_kernel.o facetrain.o imagenet.o
 
-.PHONY: all
 all: $(EXE)
 
 $(EXE): $(OBJS)
-$(EXE): LDLIBS += -lm
+>$(CC) $(CFLAGS) -o $@ $(OBJS) $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+>$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) $(OBJS) output.dat
+>rm -f $(EXE) $(OBJS) output.dat
+

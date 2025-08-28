@@ -1,14 +1,27 @@
-include ../common.mk
+.RECIPEPREFIX = >
+CC = gcc
+CFLAGS = -O3
+LDFLAGS = -lm
 
-EXE  = b+tree
-OBJS = kernel/kernel_cpu.o kernel/kernel_cpu_2.o util/timer/timer.o util/num/num.o
+SRCS = b+tree.c \
+        kernel/kernel_cpu.c \
+        kernel/kernel_cpu_2.c \
+        util/timer/timer.c \
+        util/num/num.c
 
-.PHONY: all
+OBJS = $(SRCS:.c=.o)
+EXE = b+tree
+
+.PHONY: all clean
+
 all: $(EXE)
 
 $(EXE): $(OBJS)
-$(EXE): LDLIBS += -lm
+>$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.c
+>$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) $(OBJS) output.txt
+>rm -f $(EXE) $(OBJS) output.txt
+

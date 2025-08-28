@@ -1,10 +1,19 @@
-include ../common.mk
+.RECIPEPREFIX = >
+CC=g++
+CFLAGS=-O3
+LDFLAGS=-lm
 
-EXE  = bfs
+SRCS=bfs.cpp
+OBJS=$(SRCS:.cpp=.o)
+EXE=bfs
 
-.PHONY: all
 all: $(EXE)
 
-.PHONY: clean
+$(EXE): $(OBJS)
+>$(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
+
+%.o: %.cpp
+>$(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) output.txt
+>rm -f $(EXE) $(OBJS) output.txt

@@ -1,12 +1,25 @@
-include ../common.mk
+CC = g++
+CFLAGS = -O2
+LDFLAGS = -lm
 
-EXES = euler3d_cpu euler3d_cpu_double pre_euler3d_cpu pre_euler3d_cpu_double
+TARGETS = euler3d_cpu euler3d_cpu_double pre_euler3d_cpu pre_euler3d_cpu_double
 
-OMP_NUM_THREADS = 8
+.PHONY: all clean
 
-.PHONY: all
-all: $(EXES)
+all: $(TARGETS)
 
-.PHONY: clean
+euler3d_cpu: euler3d_cpu.cpp
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
+
+euler3d_cpu_double: euler3d_cpu_double.cpp
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
+
+pre_euler3d_cpu: pre_euler3d_cpu.cpp
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
+
+pre_euler3d_cpu_double: pre_euler3d_cpu_double.cpp
+	$(CC) $(CFLAGS) $< -o $@ $(LDFLAGS)
+
 clean:
-	$(RM) $(EXES) density momentum density_energy
+	rm -f $(TARGETS) density momentum density_energy
+

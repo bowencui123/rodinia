@@ -4,7 +4,6 @@
 #include "backprop.h"
 #include <string.h>
 #include <unistd.h>
-#include <omp.h>
 
 extern void bpnn_train_kernel(BPNN *net, float *eo, float *eh);
 extern int load(BPNN *net);
