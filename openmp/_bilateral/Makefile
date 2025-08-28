@@ -1,13 +1,20 @@
-include ../common.mk
+.RECIPEPREFIX := >
+CC = g++
+CFLAGS = -O3
+LDFLAGS = -lm
 
-EXE  = bilateralFilter
-OBJS = bilateralFilter_cpu.o
+SRCS = bilateral.cpp bilateralFilter_cpu.cpp bmploader.cpp
+OBJS = $(SRCS:.cpp=.o)
+EXE  = bilateral
 
-.PHONY: all
+.PHONY: all clean
 all: $(EXE)
 
 $(EXE): $(OBJS)
+> $(CC) $(CFLAGS) -o $@ $^ $(LDFLAGS)
 
-.PHONY: clean
+%.o: %.cpp
+> $(CC) $(CFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE) $(OBJS) output.dat
+> $(RM) $(EXE) $(OBJS) output.dat

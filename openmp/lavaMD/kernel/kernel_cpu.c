@@ -10,7 +10,6 @@ extern "C" {
 //	LIBRARIES
 //======================================================================================================================================================150
 
-#include <omp.h>    // (in path known to compiler)			needed by openmp
 #include <stdlib.h> // (in path known to compiler)			needed by malloc
 #include <stdio.h>  // (in path known to compiler)			needed by printf
 #include <math.h>   // (in path known to compiler)			needed by exp
@@ -102,8 +101,6 @@ void kernel_cpu(par_str par, dim_str dim, box_str *box, FOUR_VECTOR *rv, fp *qv,
 //	PROCESS INTERACTIONS
 //======================================================================================================================================================150
 
-#pragma omp parallel for private(i, j, k) private(first_i, rA, fA) private(    \
-    pointer, first_j, rB, qB) private(r2, u2, fs, vij, fxij, fyij, fzij, d)
     for (l = 0; l < dim.number_boxes; l = l + 1) {
 
         //------------------------------------------------------------------------------------------100

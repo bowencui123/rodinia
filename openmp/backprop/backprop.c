@@ -7,7 +7,6 @@
  ******************************************************************
  */
 
-#include <omp.h>
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
@@ -227,12 +226,8 @@ int n1, n2;
 
     /*** Set up thresholding unit ***/
     l1[0] = 1.0;
-    omp_set_num_threads(NUM_THREAD);
-#pragma omp parallel for shared(conn, n1, n2, l1) private(k, j) reduction(     \
-    + : sum) schedule(static)
     /*** For each unit in second layer ***/
     for (j = 1; j <= n2; j++) {
-
         /*** Compute weighted sum of its inputs ***/
         sum = 0.0;
         for (k = 0; k <= n1; k++) {
@@ -292,9 +287,6 @@ int ndelta, nly;
     // eta = 0.3;
     // momentum = 0.3;
 
-    omp_set_num_threads(NUM_THREAD);
-#pragma omp parallel for shared(oldw, w, delta) private(                       \
-    j, k, new_dw) firstprivate(ndelta, nly)
     for (j = 1; j <= ndelta; j++) {
         for (k = 0; k <= nly; k++) {
             new_dw = ((ETA * delta[j] * ly[k]) + (MOMENTUM * oldw[k][j]));

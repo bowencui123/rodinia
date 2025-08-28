@@ -1,6 +1,5 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <omp.h>
 #include <sys/time.h>
 
 // Returns the current system time in microseconds
@@ -26,8 +25,7 @@ using namespace std;
 #define K_SI 100
 /* capacitance fitting factor   */
 #define FACTOR_CHIP 0.5
-#define OPEN
-//#define NUM_THREAD 4
+
 
 typedef float FLOAT;
 
@@ -35,10 +33,6 @@ typedef float FLOAT;
 const FLOAT t_chip = 0.0005;
 const FLOAT chip_height = 0.016;
 const FLOAT chip_width = 0.016;
-
-#ifdef OMP_OFFLOAD
-#pragma offload_attribute(push, target(mic))
-#endif
 
 /* ambient temperature, assuming no package at all  */
 const FLOAT amb_temp = 80.0;
@@ -59,14 +53,6 @@ void single_iteration(FLOAT *result, FLOAT *temp, FLOAT *power, int row,
     int chunks_in_row = col / BLOCK_SIZE_C;
     int chunks_in_col = row / BLOCK_SIZE_R;
 
-#ifdef OPEN
-#ifndef __MIC__
-    omp_set_num_threads(num_omp_threads);
-#endif
-#pragma omp parallel for shared(power, temp, result) private(                  \
-    chunk, r, c, delta)                                                        \
-        firstprivate(row, col, num_chunk, chunks_in_row) schedule(static)
-#endif
     for (chunk = 0; chunk < num_chunk; ++chunk) {
         int r_start = BLOCK_SIZE_R * (chunk / chunks_in_col);
         int c_start = BLOCK_SIZE_C * (chunk % chunks_in_row);
@@ -151,7 +137,6 @@ void single_iteration(FLOAT *result, FLOAT *temp, FLOAT *power, int row,
         }
 
         for (r = r_start; r < r_start + BLOCK_SIZE_R; ++r) {
-#pragma omp simd
             for (c = c_start; c < c_start + BLOCK_SIZE_C; ++c) {
                 /* Update Temperatures */
                 result[r * col + c] =
@@ -169,10 +154,6 @@ void single_iteration(FLOAT *result, FLOAT *temp, FLOAT *power, int row,
         }
     }
 }
-
-#ifdef OMP_OFFLOAD
-#pragma offload_attribute(pop)
-#endif
 
 /* Transient solver driver routine: simply converts the heat
  * transfer differential equations to difference equations
@@ -205,12 +186,6 @@ void compute_tran_temp(FLOAT *result, int num_iterations, FLOAT *temp,
     fprintf(stdout, "Rx: %g\tRy: %g\tRz: %g\tCap: %g\n", Rx, Ry, Rz, Cap);
 #endif
 
-#ifdef OMP_OFFLOAD
-    int array_size = row * col;
-#pragma omp target map(temp[0 : array_size])                                   \
-    map(to : power[0 : array_size], row, col, Cap_1, Rx_1, Ry_1, Rz_1, step,   \
-                   num_iterations) map(result[0 : array_size])
-#endif
     {
         FLOAT *r = result;
         FLOAT *t = temp;

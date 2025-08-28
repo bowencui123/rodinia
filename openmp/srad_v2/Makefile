@@ -1,11 +1,20 @@
-include ../common.mk
+.RECIPEPREFIX := >
+CXX = g++
+CXXFLAGS = -O3
+LDFLAGS = -lm
 
-EXE  = srad
+SRCS = srad.cpp
+OBJS = $(SRCS:.cpp=.o)
+EXE = srad
 
-.PHONY: all
 all: $(EXE)
 
-.PHONY: clean
+$(EXE): $(OBJS)
+>$(CXX) $(CXXFLAGS) -o $@ $^ $(LDFLAGS)
+
+%.o: %.cpp
+>$(CXX) $(CXXFLAGS) -c $< -o $@
+
 clean:
-	$(RM) $(EXE)
+>rm -f $(EXE) $(OBJS)
 

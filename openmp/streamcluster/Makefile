@@ -1,10 +1,15 @@
-include ../common.mk
+CXX = g++
+CXXFLAGS = -O2
+LDFLAGS = -lpthread -lm
+TARGET = streamcluster
 
-EXE  = streamcluster
+.PHONY: all clean
 
-.PHONY: all
-all: $(EXE)
+all: $(TARGET)
 
-.PHONY: clean
+$(TARGET): streamcluster.cpp
+	$(CXX) $(CXXFLAGS) $< -o $@ $(LDFLAGS)
+
 clean:
-	$(RM) $(EXE)
+	rm -f $(TARGET)
+
